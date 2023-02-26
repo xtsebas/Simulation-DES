@@ -1,3 +1,5 @@
+# Autores: Sebastián Huertas, Gerson Ramírez y Xavier López
+
 import random
 import simpy
 import statistics
@@ -15,33 +17,34 @@ def MemoryUse(env, name, time, RAM, ramQty, number_Instructions, velocity):
     yield RAM.get(ramQty)
     print("The %s can use the: %d of RAM needed." % (name, ramQty))
 
-    neeededInstructions = 0
+    finishedInstructions = 0
 
     # Still uses a complete clock cycle to run all the instructions of the process even if they are less than the
     # stablished number of instructions
-    while neeededInstructions < number_Instructions:
+
+    print("The %s will do a total of %d instructions in the CPU." % (name, number_Instructions))
+
+    while finishedInstructions < number_Instructions:
         with CPU.request() as cpuRequest:
             yield cpuRequest
 
             # Calculates the number of instructions the CPU will do per clock cycle for the process
-            if (number_Instructions - neeededInstructions) >= velocity:
+            if (number_Instructions - finishedInstructions) >= velocity:
                 new_velocity = velocity
 
             else:
-                new_velocity = (number_Instructions - neeededInstructions)
+                new_velocity = (number_Instructions - finishedInstructions)
 
-            print("The %s will do %d instructions in the CPU." % (name, new_velocity))
+            print("The %s will do %d instructions in the CPU per clock cycle." % (name, new_velocity))
             yield env.timeout(new_velocity / velocity)
 
-            neeededInstructions += new_velocity
-            print("The %s has completed %d of %f instructions" % (name, neeededInstructions, number_Instructions))
-
-        waiting_or_ready = random.randint(1, 2)
+            finishedInstructions += new_velocity
+            print("The %s has completed %d of %f instructions" % (name, finishedInstructions, number_Instructions))
 
         #Waiting list with a new CPU
         waiting_or_ready = random.randint(1, 2)
 
-        if (waiting_or_ready == 1) and (neeededInstructions < number_Instructions):
+        if (waiting_or_ready == 1) and (finishedInstructions < number_Instructions):
             # The process goes into the "Waiting" queue
             with Wait.request() as waitingQueue:
                 yield waitingQueue
@@ -66,7 +69,7 @@ elapsed_times = []
 for i in range(25):
     ramQty = random.randint(1, 10)
     number_Instructions = random.randint(1, 10)
-    env.process(MemoryUse(env, "Process %s" % i , random.expovariate(1.0 / 5.0), RAM, ramQty, number_Instructions, 3))
+    env.process(MemoryUse(env, "Process %s" % i , random.expovariate(1.0 / 10.0), RAM, ramQty, number_Instructions, 3))
 
 env.run()
 standard_deviation = statistics.stdev(elapsed_times)
