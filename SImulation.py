@@ -66,13 +66,14 @@ random.seed(10)
 totalTime = 0
 elapsed_times = []
 
-for i in range(25):
+for i in range(100):
     ramQty = random.randint(1, 10)
     number_Instructions = random.randint(1, 10)
     env.process(MemoryUse(env, "Process %s" % i , random.expovariate(1.0 / 10.0), RAM, ramQty, number_Instructions, 3))
 
 env.run()
 standard_deviation = statistics.stdev(elapsed_times)
+mean = statistics.mean(elapsed_times)
 
-print("The average time of the processes is: ", totalTime / 25.0)
+print("The average time of the processes is: ", mean)
 print("The standard deviation of the processes is: ", standard_deviation)
