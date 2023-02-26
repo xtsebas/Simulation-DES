@@ -38,7 +38,20 @@ def MemoryUse(env, name, time, RAM, ramQty, number_Instructions, velocity):
 
         waiting_or_ready = random.randint(1, 2)
 
-        #Pending to code the waiting list with a new CPU
+        #Waiting list with a new CPU
+        waiting_or_ready = random.randint(1, 2)
+
+        if (waiting_or_ready == 1) and (neeededInstructions < number_Instructions):
+            # The process goes into the "Waiting" queue
+            with Wait.request() as waitingQueue:
+                yield waitingQueue
+                yield env.timeout(1)
+                print("The %s has completed I/O operations" % name)
+
+    RAM.put(ramQty)
+    print("The %s returns %f of RAM memory" % (name, ramQty))
+    totalTime += (env.now - total)
+    elapsed_times.append(totalTime)
 
 
 env = simpy.Environment()
